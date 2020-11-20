@@ -36,14 +36,18 @@ defmodule Productive.Pipeline do
 
       defp process_result( product, opts ), do: {:ok, product}
 
-      defp info( msg ), do: apply( @logger, :info, [msg] )
+      defp info(msg, opts \\ []) do
+        logger = Keyword.get(opts, :logger, @logger)
 
-      defp log_use_case( module, state \\ %{} ) do
+        apply(logger, :info, [msg])
+      end
+
+      defp log_use_case( module, state \\ %{}, opts \\ [] ) do
         pipeline_name = Module.split( __MODULE__ )
                         |> Enum.slice( 1, 100 )
                         |> Enum.join(".")
 
-        info "Responding as use case: #{pipeline_name}"
+        info "Responding as use case: #{pipeline_name}", opts
       end
 
       defoverridable [

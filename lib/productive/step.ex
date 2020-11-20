@@ -9,7 +9,7 @@ defmodule Productive.Step do
       @logger unquote(opts[:logger])
 
       def call( product, opts \\ [] ) do
-        log_step __MODULE__, product
+        log_step __MODULE__, product, opts
 
         product
         |> do_prepare( opts )
@@ -23,7 +23,7 @@ defmodule Productive.Step do
       # Private ##########
 
       defp do_work( state, product, opts \\ [] ) do
-        state_info( inspect( state ))
+        state_info( inspect( state ), opts)
 
         work( state, product, opts )
       end
@@ -32,22 +32,52 @@ defmodule Productive.Step do
 
       defp work( _state, _product, _opts ), do: raise("You must implement the work function(s)")
 
-      defp log_step( module, product \\ %{} ) do
+      defp log_step( module, product \\ %{}, opts \\ [] ) do
         step_name = inspect( __MODULE__ )
 
-        step_info step_name
+        step_info step_name, opts
       end
 
-      defp debug( msg ), do: apply( @logger, :debug, [msg] )
-      defp info( msg ),  do: apply( @logger, :info, [msg] )
-      defp error( msg ), do: apply( @logger, :error, [msg] )
-      defp warn( msg ),  do: apply( @logger, :warn, [msg] )
+      defp debug(msg, opts \\ []) do
+        logger = Keyword.get(opts, :logger, @logger)
 
-      defp step_info( msg ),  do: apply( @logger, :step_info,  [msg] )
-      defp state_info( msg ), do: apply( @logger, :state_info, [msg] )
+        apply(logger, :debug, [msg])
+      end
+
+      defp info(msg, opts \\ []) do
+        logger = Keyword.get(opts, :logger, @logger)
+
+        apply(logger, :info, [msg])
+      end
+
+      defp error(msg, opts \\ []) do
+        logger = Keyword.get(opts, :logger, @logger)
+
+        apply(logger, :error, [msg])
+      end
+
+      defp warn(msg, opts \\ []) do
+        logger = Keyword.get(opts, :logger, @logger)
+
+        apply(logger, :warn, [msg])
+      end
+
+      defp step_info(msg, opts \\ []) do
+        logger = Keyword.get(opts, :logger, @logger)
+
+        apply(logger, :step_info, [msg])
+      end
+
+      defp state_info(msg, opts \\ []) do
+        logger = Keyword.get(opts, :logger, @logger)
+
+        apply(logger, :state_info, [msg])
+      end
 
       defoverridable [
+        log_step: 1,
         log_step: 2,
+        log_step: 3,
         prepare: 2,
         work: 3
       ]
